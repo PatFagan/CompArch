@@ -115,10 +115,10 @@
       <EntryPointSymbol>_main</EntryPointSymbol>
     </Link>
     <MASM>
-      <GeneratePreprocessedSourceListing>Yes</GeneratePreprocessedSourceListing>
+      <GeneratePreprocessedSourceListing>false</GeneratePreprocessedSourceListing>
     </MASM>
     <MASM>
-      <ListAllAvailableInformation>Yes</ListAllAvailableInformation>
+      <ListAllAvailableInformation>false</ListAllAvailableInformation>
     </MASM>
     <MASM>
       <AssembledCodeListingFile>$(code).lst</AssembledCodeListingFile>
