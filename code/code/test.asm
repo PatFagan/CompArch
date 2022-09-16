@@ -24,12 +24,12 @@ _main PROC				; _main:
 
 ; INITIALIZE DATA
 
-mov letter, 0x77		; movb $0x77, letter(%rip)
+mov letter, 77h		; movb $0x77, letter(%rip)
 
-mov r, 0x5				; movl $0x5, r(%rip)
-mov s, 0x2				; movl $0x2, s(%rip)
-mov x, 0xa				; movw $0xa, x(%rip)
-mov y, 0x4				; movw $0x4, y(%rip)
+mov r, 5h				; movl $0x5, r(%rip)
+mov s, 2h				; movl $0x2, s(%rip)
+mov x, 10h				; movw $0xa, x(%rip)
+mov y, 4h				; movw $0x4, y(%rip)
 
 mov ax, x				; movw x(%rip), %ax
 add ax, y				; addw y(%rip), %ax
@@ -39,13 +39,13 @@ mov ax, x				; movw x(%rip), %ax
 sub ax, y				; subw y(%rip), %ax
 mov ax, z				; movw %ax, z(%rip)
 
-mov edx, 0x0			; movl $0x0, %edx
+mov edx, 0h				; movl $0x0, %edx
 mov eax, r				; movl r(%rip), %eax
 mov ecx, s				; movl s(%rip), %ecx
 div ecx					; divl %ecx
 mov eax, t				; movl %eax, t(%rip)
 
-mov edx, 0x0			; movl $0x0, %edx
+mov edx, 0h				; movl $0x0, %edx
 mov eax, r				; movl r(%rip), %eax
 mov ecx, s				; movl s(%rip), %ecx
 div ecx					; divl %ecx
