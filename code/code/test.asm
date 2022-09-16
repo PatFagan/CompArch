@@ -19,43 +19,41 @@ z WORD ?				; .lcomm z, 2
 
 .code					; .text
 ; .global _main
+extern ExitProcess : proc
 _main PROC				; _main:
 
 ; INITIALIZE DATA
 
 mov letter, 0x77		; movb $0x77, letter(%rip)
-mov BYTE PTR letter, 0x77
 
 mov r, 0x5				; movl $0x5, r(%rip)
-mov BYTE PTR r, 0x5
 mov s, 0x2				; movl $0x2, s(%rip)
-mov BYTE PTR s, 0x2
 mov x, 0xa				; movw $0xa, x(%rip)
-mov BYTE PTR x, 0xa
 mov y, 0x4				; movw $0x4, y(%rip)
-mov BYTE PTR y, 0x4
 
 mov ax, x				; movw x(%rip), %ax
 add ax, y				; addw y(%rip), %ax
 mov ax, z				; movw %ax, z(%rip)
 
 mov ax, x				; movw x(%rip), %ax
-subw y(%rip), %ax
-movw %ax, z(%rip)
+sub ax, y				; subw y(%rip), %ax
+mov ax, z				; movw %ax, z(%rip)
 
-movl $0x0, %edx
-movl r(%rip), %eax
-movl s(%rip), %ecx
-divl %ecx
-movl %eax, t(%rip)
+mov edx, 0x0			; movl $0x0, %edx
+mov eax, r				; movl r(%rip), %eax
+mov ecx, s				; movl s(%rip), %ecx
+div ecx					; divl %ecx
+mov eax, t				; movl %eax, t(%rip)
 
-movl $0x0, %edx
-movl r(%rip), %eax
-movl s(%rip), %ecx
-divl %ecx
-movl %edx, t(%rip)
+mov edx, 0x0			; movl $0x0, %edx
+mov eax, r				; movl r(%rip), %eax
+mov ecx, s				; movl s(%rip), %ecx
+div ecx					; divl %ecx
+mov edx, t				; movl %edx, t(%rip)
 
 						; movq $0x2000001, %rax
 xor rcx, rcx			; xorq %rdi, %rdi
 .code ;	.text			; syscall
-END	; .end
+call ExitProcess
+_main ENDP				; .end
+END

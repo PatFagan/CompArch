@@ -1,0 +1,114 @@
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/16/22 11:17:32
+test.asm						     Page 1 - 1
+
+
+				; Assignment 3.3
+				; Syntax Translation - GAS, Clang/LLVM on macOS (64-bit)
+				; Copyright (c) 2019 Hall & Slonka
+
+ 00000000			.data	
+
+				; UNINITIALIZED DATA
+
+										; .bss
+ 00000000 00			letter BYTE ?			; .lcomm letter, 1
+ 00000001 00000000		r DWORD ?				; .lcomm r, 4
+ 00000005 00000000		s DWORD ?				; .lcomm s, 4
+ 00000009 00000000		t DWORD ?				; .lcomm t, 4
+ 0000000D 0000			x WORD ?				; .lcomm x, 2
+ 0000000F 0000			y WORD ?				; .lcomm y, 2
+ 00000011 0000			z WORD ?				; .lcomm z, 2
+
+				; START MAIN FUNCTION
+
+ 00000000			.code					; .text
+				; .global _main
+				extern ExitProcess : proc
+ 00000000			_main PROC				; _main:
+
+				; INITIALIZE DATA
+
+				mov letter, 0x77		; movb $0x77, letter(%rip)
+test.asm(27) : error A2206:missing operator in expression
+				mov BYTE PTR letter, 0x77
+test.asm(28) : error A2206:missing operator in expression
+
+				mov r, 0x5				; movl $0x5, r(%rip)
+test.asm(30) : error A2206:missing operator in expression
+				mov BYTE PTR r, 0x5
+test.asm(31) : error A2206:missing operator in expression
+				mov s, 0x2				; movl $0x2, s(%rip)
+test.asm(32) : error A2206:missing operator in expression
+				mov BYTE PTR s, 0x2
+test.asm(33) : error A2206:missing operator in expression
+				mov x, 0xa				; movw $0xa, x(%rip)
+test.asm(34) : error A2206:missing operator in expression
+				mov BYTE PTR x, 0xa
+test.asm(35) : error A2206:missing operator in expression
+				mov y, 0x4				; movw $0x4, y(%rip)
+test.asm(36) : error A2206:missing operator in expression
+				mov BYTE PTR y, 0x4
+test.asm(37) : error A2206:missing operator in expression
+
+ 00000000  66| 8B 05		mov ax, x				; movw x(%rip), %ax
+	   0000000D R
+ 00000007  66| 03 05		add ax, y				; addw y(%rip), %ax
+	   0000000F R
+ 0000000E  66| 8B 05		mov ax, z				; movw %ax, z(%rip)
+	   00000011 R
+
+ 00000015  66| 8B 05		mov ax, x				; movw x(%rip), %ax
+	   0000000D R
+ 0000001C  66| 2B 05		sub ax, y				; subw y(%rip), %ax
+	   0000000F R
+ 00000023  66| 8B 05		mov ax, z				; movw %ax, z(%rip)
+	   00000011 R
+
+				mov edx, 0x0			; movl $0x0, %edx
+test.asm(47) : error A2206:missing operator in expression
+ 0000002A  8B 05 00000001 R	mov eax, r				; movl r(%rip), %eax
+ 00000030  8B 0D 00000005 R	mov ecx, s				; movl s(%rip), %ecx
+ 00000036  F7 F1		div ecx					; divl %ecx
+ 00000038  8B 05 00000009 R	mov eax, t				; movl %eax, t(%rip)
+
+				mov edx, 0x0			; movl $0x0, %edx
+test.asm(53) : error A2206:missing operator in expression
+ 0000003E  8B 05 00000001 R	mov eax, r				; movl r(%rip), %eax
+ 00000044  8B 0D 00000005 R	mov ecx, s				; movl s(%rip), %ecx
+ 0000004A  F7 F1		div ecx					; divl %ecx
+ 0000004C  8B 15 00000009 R	mov edx, t				; movl %edx, t(%rip)
+
+										; movq $0x2000001, %rax
+ 00000052  48/ 33 C9		xor rcx, rcx			; xorq %rdi, %rdi
+ 000000D9			.code ;	.text			; syscall
+ 000000D9  E8 00000000 E	call ExitProcess
+ 000000DE			_main ENDP				; .end
+				END
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/16/22 11:17:32
+test.asm						     Symbols 2 - 1
+
+
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 000000DE Public
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
+letter . . . . . . . . . . . . .	Byte	 00000000 _DATA	
+r  . . . . . . . . . . . . . . .	DWord	 00000001 _DATA	
+s  . . . . . . . . . . . . . . .	DWord	 00000005 _DATA	
+t  . . . . . . . . . . . . . . .	DWord	 00000009 _DATA	
+x  . . . . . . . . . . . . . . .	Word	 0000000D _DATA	
+y  . . . . . . . . . . . . . . .	Word	 0000000F _DATA	
+z  . . . . . . . . . . . . . . .	Word	 00000011 _DATA	
+
+	   0 Warnings
+	   12 Errors
