@@ -1,80 +1,51 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/16/22 18:38:19
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 11:14:32
 test.asm						     Page 1 - 1
 
 
-				; Assignment 3.3
-				; Syntax Translation - GAS, Clang/LLVM on macOS (64-bit)
-				; Copyright (c) 2019 Hall & Slonka
+				; Assignment 3.4
+				; Order of Operations
 
  00000000			.data	
 
-				; UNINITIALIZED DATA
+				; answer = (A+B) - (C+D)
+				; store each value in a register
+				; provide initial values to data
+				; create a string that equals "The answer is: "
+				; comment each line of code
 
-										; .bss
- 00000000 00			letter BYTE ?			; .lcomm letter, 1
- 00000001 00000000		r DWORD ?				; .lcomm r, 4
- 00000005 00000000		s DWORD ?				; .lcomm s, 4
- 00000009 00000000		t DWORD ?				; .lcomm t, 4
- 0000000D 0000			x WORD ?				; .lcomm x, 2
- 0000000F 0000			y WORD ?				; .lcomm y, 2
- 00000011 0000			z WORD ?				; .lcomm z, 2
+ 00000000 00000000		answer DWORD ?	; create variable of four byte to hold the answer
 
 				; START MAIN FUNCTION
 
- 00000000			.code					; .text
-				; .global _main
-				extern ExitProcess : proc
- 00000000			_main PROC				; _main:
+ 00000000			.code	; program segment that signals the start of code segment
+				extern ExitProcess : proc	; creates exit function to be used later
+ 00000000			_main PROC	; start of main function
 
-				; INITIALIZE DATA
-
- 00000000  C6 05 00000000 R	mov letter, 77h		; movb $0x77, letter(%rip)
-	   77
-
- 00000007  C7 05 00000001 R	mov r, 5h				; movl $0x5, r(%rip)
+ 00000000  48/ C7 C0		mov rax, 7	; assign rax register a value of 7
+	   00000007
+ 00000007  48/ C7 C3		mov rbx, 5	; assign rbx register a value of 5
 	   00000005
- 00000011  C7 05 00000005 R	mov s, 2h				; movl $0x2, s(%rip)
-	   00000002
- 0000001B  66| C7 05		mov x, 10h				; movw $0xa, x(%rip)
-	   0000000D R
-	   0010
- 00000024  66| C7 05		mov y, 4h				; movw $0x4, y(%rip)
-	   0000000F R
-	   0004
+ 0000000E  48/ C7 C1		mov rcx, 3	; assign rcx register a value of 3
+	   00000003
+ 00000015  48/ C7 C2		mov rdx, 4	; assign rdx register a value of 4
+	   00000004
 
- 0000002D  66| 8B 05		mov ax, x				; movw x(%rip), %ax
-	   0000000D R
- 00000034  66| 03 05		add ax, y				; addw y(%rip), %ax
-	   0000000F R
- 0000003B  66| 8B 05		mov ax, z				; movw %ax, z(%rip)
-	   00000011 R
+ 0000001C  48/ 03 C3		add rax, rbx	; adding rbx to rax
+ 0000001F  48/ 03 CA		add rcx, rdx	; adding rdx to rcx
+ 00000022  48/ 2B C1		sub rax, rcx	; subtract rcx from rax
 
- 00000042  66| 8B 05		mov ax, x				; movw x(%rip), %ax
-	   0000000D R
- 00000049  66| 2B 05		sub ax, y				; subw y(%rip), %ax
-	   0000000F R
- 00000050  66| 8B 05		mov ax, z				; movw %ax, z(%rip)
-	   00000011 R
+				; create string
+ 00000025 54 68 65 20 61	identifier BYTE "The answer is: "
+	   6E 73 77 65 72
+	   20 69 73 3A 20
+				; answer is rax
 
- 00000057  BA 00000000		mov edx, 0h				; movl $0x0, %edx
- 0000005C  8B 05 00000001 R	mov eax, r				; movl r(%rip), %eax
- 00000062  8B 0D 00000005 R	mov ecx, s				; movl s(%rip), %ecx
- 00000068  F7 F1		div ecx					; divl %ecx
- 0000006A  8B 05 00000009 R	mov eax, t				; movl %eax, t(%rip)
-
- 00000070  BA 00000000		mov edx, 0h				; movl $0x0, %edx
- 00000075  8B 05 00000001 R	mov eax, r				; movl r(%rip), %eax
- 0000007B  8B 0D 00000005 R	mov ecx, s				; movl s(%rip), %ecx
- 00000081  F7 F1		div ecx					; divl %ecx
- 00000083  8B 15 00000009 R	mov edx, t				; movl %edx, t(%rip)
-
-										; movq $0x2000001, %rax
- 00000089  48/ 33 C9		xor rcx, rcx			; xorq %rdi, %rdi
- 0000008C			.code ;	.text			; syscall
- 0000008C  E8 00000000 E	call ExitProcess
- 00000091			_main ENDP				; .end
-				END
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/16/22 18:38:19
+ 00000034  48/ 33 C9		xor rcx, rcx	; resets value of rcx
+ 00000037			.code	; end of code segment
+ 00000037  E8 00000000 E	call ExitProcess	; calls exit function
+ 0000003C			_main ENDP	; end of main function
+				END	; end of program
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 11:14:32
 test.asm						     Symbols 2 - 1
 
 
@@ -84,7 +55,7 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 00000091 Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000003C Public
 
 
 Symbols:
@@ -92,13 +63,8 @@ Symbols:
                 N a m e                 Type     Value    Attr
 
 ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
-letter . . . . . . . . . . . . .	Byte	 00000000 _DATA	
-r  . . . . . . . . . . . . . . .	DWord	 00000001 _DATA	
-s  . . . . . . . . . . . . . . .	DWord	 00000005 _DATA	
-t  . . . . . . . . . . . . . . .	DWord	 00000009 _DATA	
-x  . . . . . . . . . . . . . . .	Word	 0000000D _DATA	
-y  . . . . . . . . . . . . . . .	Word	 0000000F _DATA	
-z  . . . . . . . . . . . . . . .	Word	 00000011 _DATA	
+answer . . . . . . . . . . . . .	DWord	 00000000 _DATA	
+identifier . . . . . . . . . . .	Byte	 00000025 _TEXT	
 
 	   0 Warnings
 	   0 Errors

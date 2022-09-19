@@ -1,59 +1,37 @@
-; Assignment 3.3
-; Syntax Translation - GAS, Clang/LLVM on macOS (64-bit)
-; Copyright (c) 2019 Hall & Slonka
+; Assignment 3.4
+; Order of Operations
 
 .data	
 
-; UNINITIALIZED DATA
+; answer = (A+B) - (C+D)
+; store each value in a register
+; provide initial values to data
+; create a string that equals "The answer is: "
+; comment each line of code
 
-						; .bss
-letter BYTE ?			; .lcomm letter, 1
-r DWORD ?				; .lcomm r, 4
-s DWORD ?				; .lcomm s, 4
-t DWORD ?				; .lcomm t, 4
-x WORD ?				; .lcomm x, 2
-y WORD ?				; .lcomm y, 2
-z WORD ?				; .lcomm z, 2
+answer DWORD ?	; create variable of four byte to hold the answer
 
 ; START MAIN FUNCTION
 
-.code					; .text
-; .global _main
-extern ExitProcess : proc
-_main PROC				; _main:
+.code	; program segment that signals the start of code segment
+extern ExitProcess : proc	; creates exit function to be used later
+_main PROC	; start of main function
 
-; INITIALIZE DATA
+mov rax, 7	; assign rax register a value of 7
+mov rbx, 5	; assign rbx register a value of 5
+mov rcx, 3	; assign rcx register a value of 3
+mov rdx, 4	; assign rdx register a value of 4
 
-mov letter, 77h		; movb $0x77, letter(%rip)
+add rax, rbx	; adding rbx to rax
+add rcx, rdx	; adding rdx to rcx
+sub rax, rcx	; subtract rcx from rax
 
-mov r, 5h				; movl $0x5, r(%rip)
-mov s, 2h				; movl $0x2, s(%rip)
-mov x, 10h				; movw $0xa, x(%rip)
-mov y, 4h				; movw $0x4, y(%rip)
+; create string
+identifier BYTE "The answer is: "
+; answer is rax
 
-mov ax, x				; movw x(%rip), %ax
-add ax, y				; addw y(%rip), %ax
-mov ax, z				; movw %ax, z(%rip)
-
-mov ax, x				; movw x(%rip), %ax
-sub ax, y				; subw y(%rip), %ax
-mov ax, z				; movw %ax, z(%rip)
-
-mov edx, 0h				; movl $0x0, %edx
-mov eax, r				; movl r(%rip), %eax
-mov ecx, s				; movl s(%rip), %ecx
-div ecx					; divl %ecx
-mov eax, t				; movl %eax, t(%rip)
-
-mov edx, 0h				; movl $0x0, %edx
-mov eax, r				; movl r(%rip), %eax
-mov ecx, s				; movl s(%rip), %ecx
-div ecx					; divl %ecx
-mov edx, t				; movl %edx, t(%rip)
-
-						; movq $0x2000001, %rax
-xor rcx, rcx			; xorq %rdi, %rdi
-.code ;	.text			; syscall
-call ExitProcess
-_main ENDP				; .end
-END
+xor rcx, rcx	; resets value of rcx
+.code	; end of code segment
+call ExitProcess	; calls exit function
+_main ENDP	; end of main function
+END	; end of program
