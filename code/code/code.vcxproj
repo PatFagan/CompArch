@@ -113,12 +113,13 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>_main</EntryPointSymbol>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <MASM>
       <GeneratePreprocessedSourceListing>false</GeneratePreprocessedSourceListing>
     </MASM>
     <MASM>
-      <ListAllAvailableInformation>false</ListAllAvailableInformation>
+      <ListAllAvailableInformation>true</ListAllAvailableInformation>
     </MASM>
     <MASM>
       <AssembledCodeListingFile>$(code).lst</AssembledCodeListingFile>

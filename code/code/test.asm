@@ -1,13 +1,9 @@
 ; Assignment 3.4
 ; Order of Operations
 
-.data	
+.data	; start of the data program segment, to declare variables
 
-; answer = (A+B) - (C+D)
-; store each value in a register
-; provide initial values to data
-; create a string that equals "The answer is: "
-; comment each line of code
+identifier BYTE "The answer is: "	; create string
 
 answer DWORD ?	; create variable of four byte to hold the answer
 
@@ -25,10 +21,7 @@ mov rdx, 4	; assign rdx register a value of 4
 add rax, rbx	; adding rbx to rax
 add rcx, rdx	; adding rdx to rcx
 sub rax, rcx	; subtract rcx from rax
-
-; create string
-identifier BYTE "The answer is: "
-; answer is rax
+; the answer is rax
 
 xor rcx, rcx	; resets value of rcx
 .code	; end of code segment

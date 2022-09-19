@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 11:14:32
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 19:40:17
 test.asm						     Page 1 - 1
 
 
@@ -7,13 +7,12 @@ test.asm						     Page 1 - 1
 
  00000000			.data	
 
-				; answer = (A+B) - (C+D)
-				; store each value in a register
-				; provide initial values to data
-				; create a string that equals "The answer is: "
-				; comment each line of code
+				; create string
+ 00000000 54 68 65 20 61	identifier BYTE "The answer is: "
+	   6E 73 77 65 72
+	   20 69 73 3A 20
 
- 00000000 00000000		answer DWORD ?	; create variable of four byte to hold the answer
+ 0000000F 00000000		answer DWORD ?	; create variable of four byte to hold the answer
 
 				; START MAIN FUNCTION
 
@@ -33,19 +32,14 @@ test.asm						     Page 1 - 1
  0000001C  48/ 03 C3		add rax, rbx	; adding rbx to rax
  0000001F  48/ 03 CA		add rcx, rdx	; adding rdx to rcx
  00000022  48/ 2B C1		sub rax, rcx	; subtract rcx from rax
+				; the answer is rax
 
-				; create string
- 00000025 54 68 65 20 61	identifier BYTE "The answer is: "
-	   6E 73 77 65 72
-	   20 69 73 3A 20
-				; answer is rax
-
- 00000034  48/ 33 C9		xor rcx, rcx	; resets value of rcx
- 00000037			.code	; end of code segment
- 00000037  E8 00000000 E	call ExitProcess	; calls exit function
- 0000003C			_main ENDP	; end of main function
+ 00000025  48/ 33 C9		xor rcx, rcx	; resets value of rcx
+ 00000028			.code	; end of code segment
+ 00000028  E8 00000000 E	call ExitProcess	; calls exit function
+ 0000002D			_main ENDP	; end of main function
 				END	; end of program
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 11:14:32
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 19:40:17
 test.asm						     Symbols 2 - 1
 
 
@@ -55,7 +49,7 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000003C Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000002D Public
 
 
 Symbols:
@@ -63,8 +57,8 @@ Symbols:
                 N a m e                 Type     Value    Attr
 
 ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
-answer . . . . . . . . . . . . .	DWord	 00000000 _DATA	
-identifier . . . . . . . . . . .	Byte	 00000025 _TEXT	
+answer . . . . . . . . . . . . .	DWord	 0000000F _DATA	
+identifier . . . . . . . . . . .	Byte	 00000000 _DATA	
 
 	   0 Warnings
 	   0 Errors
