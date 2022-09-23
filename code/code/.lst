@@ -1,45 +1,44 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 19:40:17
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/23/22 10:11:11
 test.asm						     Page 1 - 1
 
 
-				; Assignment 3.4
-				; Order of Operations
+				; Program 4.4
+				; Array - MASM (64-bit)
+				; Copyright (c) 2020 Hall & Slonka
 
- 00000000			.data	
+				extrn ExitProcess : proc
 
-				; create string
- 00000000 54 68 65 20 61	identifier BYTE "The answer is: "
-	   6E 73 77 65 72
-	   20 69 73 3A 20
+ 00000000			.data
+ 00000000			array QWORD 1, 2, 3, 4
+	   0000000000000001
+	   0000000000000002
+	   0000000000000003
+	   0000000000000004
 
- 0000000F 00000000		answer DWORD ?	; create variable of four byte to hold the answer
+ 00000000			.code
+ 00000000			_main PROC
 
-				; START MAIN FUNCTION
+				; Load using byte offsets
+ 00000000  48/ 8D 35		lea rsi, array 
+	   00000000 R
+ 00000007  48/ 8B 06		mov rax, QWORD PTR [rsi]
+ 0000000A  48/ 8B 5E 08		mov rbx, QWORD PTR [rsi + 8]
 
- 00000000			.code	; program segment that signals the start of code segment
-				extern ExitProcess : proc	; creates exit function to be used later
- 00000000			_main PROC	; start of main function
-
- 00000000  48/ C7 C0		mov rax, 7	; assign rax register a value of 7
-	   00000007
- 00000007  48/ C7 C3		mov rbx, 5	; assign rbx register a value of 5
-	   00000005
- 0000000E  48/ C7 C1		mov rcx, 3	; assign rcx register a value of 3
+				; Save using indices
+ 0000000E  48/ C7 C2		mov rdx, 2
+	   00000002
+ 00000015  48/ C7 04 D6		mov QWORD PTR [rsi+rdx*8], 10
+	   0000000A
+ 0000001D  48/ C7 C2		mov rdx, 3
 	   00000003
- 00000015  48/ C7 C2		mov rdx, 4	; assign rdx register a value of 4
-	   00000004
+ 00000024  48/ C7 04 D6		mov QWORD PTR [rsi+rdx*8], 20
+	   00000014
 
- 0000001C  48/ 03 C3		add rax, rbx	; adding rbx to rax
- 0000001F  48/ 03 CA		add rcx, rdx	; adding rdx to rcx
- 00000022  48/ 2B C1		sub rax, rcx	; subtract rcx from rax
-				; the answer is rax
-
- 00000025  48/ 33 C9		xor rcx, rcx	; resets value of rcx
- 00000028			.code	; end of code segment
- 00000028  E8 00000000 E	call ExitProcess	; calls exit function
- 0000002D			_main ENDP	; end of main function
-				END	; end of program
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/19/22 19:40:17
+ 0000002C  48/ 33 C9		xor rcx, rcx
+ 0000002F  E8 00000000 E	call ExitProcess
+ 00000034			_main ENDP
+				END
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/23/22 10:11:11
 test.asm						     Symbols 2 - 1
 
 
@@ -49,16 +48,15 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000002D Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 00000034 Public
 
 
 Symbols:
 
                 N a m e                 Type     Value    Attr
 
-ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
-answer . . . . . . . . . . . . .	DWord	 0000000F _DATA	
-identifier . . . . . . . . . . .	Byte	 00000000 _DATA	
+ExitProcess  . . . . . . . . . .	L 	 00000000 External
+array  . . . . . . . . . . . . .	QWord	 00000000 _DATA	
 
 	   0 Warnings
 	   0 Errors
