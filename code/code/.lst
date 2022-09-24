@@ -1,44 +1,65 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/23/22 10:11:11
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/24/22 14:29:23
 test.asm						     Page 1 - 1
 
 
-				; Program 4.4
-				; Array - MASM (64-bit)
-				; Copyright (c) 2020 Hall & Slonka
+				; Assignment 4.4
+				; Differently-Sized Arrays
 
-				extrn ExitProcess : proc
+ 00000000			.data	; start of the data program segment, to declare variables
 
- 00000000			.data
- 00000000			array QWORD 1, 2, 3, 4
-	   0000000000000001
-	   0000000000000002
-	   0000000000000003
-	   0000000000000004
+ 00000000 0005 000A 000F	array WORD 5, 10, 15, 20	; create array of WORDS (2 bytes each element)
+	   0014
+ 00000008 00000000		newArray DWORD ?, ?, ?, ?	; create array of DWORDS to fill later (4 bytes each element)
+	   00000000
+	   00000000
+	   00000000
+ 00000018 0008			eight WORD 8
 
- 00000000			.code
- 00000000			_main PROC
+ 00000000			.code	; program segment that signals the start of code segment
+				extern ExitProcess : proc	; creates exit function to be used later
+ 00000000			_main PROC	; start of main function
 
-				; Load using byte offsets
- 00000000  48/ 8D 35		lea rsi, array 
+ 00000000  48/ 8D 35		lea rsi, array	; load array into rsi register
 	   00000000 R
- 00000007  48/ 8B 06		mov rax, QWORD PTR [rsi]
- 0000000A  48/ 8B 5E 08		mov rbx, QWORD PTR [rsi + 8]
+ 00000007  48/ 8D 3D		lea rdi, newArray	; load newArray into rdi register
+	   00000008 R
 
-				; Save using indices
- 0000000E  48/ C7 C2		mov rdx, 2
+ 0000000E  48/ C7 C2		mov rdx, 0	; set rdx to 0 for first element of array
+	   00000000
+ 00000015  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
+ 00000019  66| F7 25		mul eight	; multiply ax by 8
+	   00000018 R
+ 00000020  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
+
+ 00000024  48/ C7 C2		mov rdx, 1	; set rdx to 1 for first element of array
+	   00000001
+ 0000002B  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
+ 0000002F  66| F7 25		mul eight	; multiply ax by 8
+	   00000018 R
+ 00000036  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
+
+ 0000003A  48/ C7 C2		mov rdx, 2	; set rdx to 2 for first element of array
 	   00000002
- 00000015  48/ C7 04 D6		mov QWORD PTR [rsi+rdx*8], 10
-	   0000000A
- 0000001D  48/ C7 C2		mov rdx, 3
-	   00000003
- 00000024  48/ C7 04 D6		mov QWORD PTR [rsi+rdx*8], 20
-	   00000014
+ 00000041  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
+ 00000045  66| F7 25		mul eight	; multiply ax by 8
+	   00000018 R
+ 0000004C  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
 
- 0000002C  48/ 33 C9		xor rcx, rcx
- 0000002F  E8 00000000 E	call ExitProcess
- 00000034			_main ENDP
-				END
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/23/22 10:11:11
+ 00000050  48/ C7 C2		mov rdx, 3	; set rdx to 4 for first element of array
+	   00000003
+ 00000057  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
+ 0000005B  66| F7 25		mul eight	; multiply ax by 8
+	   00000018 R
+ 00000062  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
+
+
+
+ 00000066  48/ 33 C9		xor rcx, rcx	; resets value of rcx
+ 00000069			.code	; end of code segment
+ 00000069  E8 00000000 E	call ExitProcess	; calls exit function
+ 0000006E			_main ENDP	; end of main function
+				END	; end of program
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/24/22 14:29:23
 test.asm						     Symbols 2 - 1
 
 
@@ -48,15 +69,17 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 00000034 Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000006E Public
 
 
 Symbols:
 
                 N a m e                 Type     Value    Attr
 
-ExitProcess  . . . . . . . . . .	L 	 00000000 External
-array  . . . . . . . . . . . . .	QWord	 00000000 _DATA	
+ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
+array  . . . . . . . . . . . . .	Word	 00000000 _DATA	
+eight  . . . . . . . . . . . . .	Word	 00000018 _DATA	
+newArray . . . . . . . . . . . .	DWord	 00000008 _DATA	
 
 	   0 Warnings
 	   0 Errors
