@@ -1,65 +1,84 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/24/22 14:29:23
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/03/22 12:29:53
 test.asm						     Page 1 - 1
 
 
-				; Assignment 4.4
-				; Differently-Sized Arrays
+				; Assignment 5.2 alternate
+				; Pin
 
  00000000			.data	; start of the data program segment, to declare variables
 
- 00000000 0005 000A 000F	array WORD 5, 10, 15, 20	; create array of WORDS (2 bytes each element)
-	   0014
- 00000008 00000000		newArray DWORD ?, ?, ?, ?	; create array of DWORDS to fill later (4 bytes each element)
-	   00000000
-	   00000000
-	   00000000
- 00000018 0008			eight WORD 8
+				; SUMMARY
+				; array of 4 ints
+				; for each element, check to see if they are within a range (ex. 3-6)
+				; if so set a validate variable to 1
+				; if not, set validate variable to 0 and end program
+
+
+ 00000000 02			validated BYTE 2	; create variable that sets to 0 if invalid and 1 if valid (start at 2 by default)
+
+ 00000001 0004 0002 0003	pin WORD 4, 2, 3, 4	; create array of WORDS (2 bytes each element)
+	   0004
+
+ 00000009 0003 0001 0007	lowerboundlist WORD 3, 1, 7, 2
+	   0002
+ 00000011 0006 0004 0009	upperboundlist WORD 6, 4, 9, 5
+	   0005
+
 
  00000000			.code	; program segment that signals the start of code segment
 				extern ExitProcess : proc	; creates exit function to be used later
  00000000			_main PROC	; start of main function
 
- 00000000  48/ 8D 35		lea rsi, array	; load array into rsi register
-	   00000000 R
- 00000007  48/ 8D 3D		lea rdi, newArray	; load newArray into rdi register
-	   00000008 R
+ 00000000  48/ 8D 25		lea rsp, lowerboundlist	; load lowerbounds into array
+	   00000009 R
+ 00000007  48/ 8D 3D		lea rdi, upperboundlist	; load upperbounds into array
+	   00000011 R
 
- 0000000E  48/ C7 C2		mov rdx, 0	; set rdx to 0 for first element of array
+ 0000000E  48/ 8D 35		lea rsi, pin	; load array into rsi register
+	   00000001 R
+
+ 00000015  48/ C7 C2		mov rdx, 0	; set rdx to 0 as the index for the first element of the array
 	   00000000
- 00000015  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
- 00000019  66| F7 25		mul eight	; multiply ax by 8
-	   00000018 R
- 00000020  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
 
- 00000024  48/ C7 C2		mov rdx, 1	; set rdx to 1 for first element of array
-	   00000001
- 0000002B  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
- 0000002F  66| F7 25		mul eight	; multiply ax by 8
-	   00000018 R
- 00000036  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
+ 0000001C			restartloop: 
+ 0000001C  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov current value of array into ax
 
- 0000003A  48/ C7 C2		mov rdx, 2	; set rdx to 2 for first element of array
-	   00000002
- 00000041  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
- 00000045  66| F7 25		mul eight	; multiply ax by 8
-	   00000018 R
- 0000004C  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
+ 00000020  66| 8B 1C 54		mov bx, [rsp + rdx * 2]	; set first lowerbound to bx
+ 00000024  66| 3B C3		cmp ax, bx	; compare the current array value to the lowerbound
+ 00000027  7D 09		jge checkupperbound	; jump if the current array value is greater than or equal to the lowerbound
+ 00000029  C6 05 00000000 R	mov validated, 0	; if comparison is false (element is out of bounds) then validated is set to 0
+	   00
+ 00000030  EB 10		jmp continueloop	; and skip to the next loop (since we already know this element is invalid)
 
- 00000050  48/ C7 C2		mov rdx, 3	; set rdx to 4 for first element of array
-	   00000003
- 00000057  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov first value of array into ax
- 0000005B  66| F7 25		mul eight	; multiply ax by 8
-	   00000018 R
- 00000062  66| 89 04 97		mov [rdi + rdx * 4], ax	; move resulting value into newArray
+ 00000032			checkupperbound:	; if it is within bounds then it jumps to here to continue comparisons
+ 00000032  66| 8B 1C 57		mov bx, [rdi + rdx * 2]	; set first upperbound to bx
+ 00000036  66| 3B C3		cmp ax, bx	; compare the current array value to the upperbound
+ 00000039  7E 07		jle continueloop	; jump if the current array value is less than or equal to the upperbound
+ 0000003B  C6 05 00000000 R	mov validated, 0	; if comparison is false (element is out of bounds) then validated is set to 0
+	   00
 
 
+ 00000042			continueloop:	; jumps to this section of code when preparing to restart the loop
+ 00000042  48/ FF C2		inc rdx	; increment rdx to check next element of pin array
 
- 00000066  48/ 33 C9		xor rcx, rcx	; resets value of rcx
- 00000069			.code	; end of code segment
- 00000069  E8 00000000 E	call ExitProcess	; calls exit function
- 0000006E			_main ENDP	; end of main function
+ 00000045  80 3D 00000000 R	cmp validated, 0	; compare validated with 0
+	   00
+ 0000004C  74 08		jz endprogram	; if validated is already 0, endprogram
+
+ 0000004E  48/ 83 FA 04		cmp rdx, 4	; check if index is at end of list
+ 00000052  7D 02		jge endprogram	; if so, end the program and see validated variable for result
+
+ 00000054  EB C6		jmp restartloop	; jump to the start of the loop to begin again
+
+ 00000056			endprogram:	; jump here if validated is 0
+
+
+ 00000056  48/ 33 C9		xor rcx, rcx	; resets value of rcx
+ 00000059			.code	; end of code segment
+ 00000059  E8 00000000 E	call ExitProcess	; calls exit function
+ 0000005E			_main ENDP	; end of main function
 				END	; end of program
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   09/24/22 14:29:23
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/03/22 12:29:53
 test.asm						     Symbols 2 - 1
 
 
@@ -69,7 +88,11 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000006E Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000005E Public
+  restartloop  . . . . . . . . .	L 	 0000001C _TEXT	
+  checkupperbound  . . . . . . .	L 	 00000032 _TEXT	
+  continueloop . . . . . . . . .	L 	 00000042 _TEXT	
+  endprogram . . . . . . . . . .	L 	 00000056 _TEXT	
 
 
 Symbols:
@@ -77,9 +100,10 @@ Symbols:
                 N a m e                 Type     Value    Attr
 
 ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
-array  . . . . . . . . . . . . .	Word	 00000000 _DATA	
-eight  . . . . . . . . . . . . .	Word	 00000018 _DATA	
-newArray . . . . . . . . . . . .	DWord	 00000008 _DATA	
+lowerboundlist . . . . . . . . .	Word	 00000009 _DATA	
+pin  . . . . . . . . . . . . . .	Word	 00000001 _DATA	
+upperboundlist . . . . . . . . .	Word	 00000011 _DATA	
+validated  . . . . . . . . . . .	Byte	 00000000 _DATA	
 
 	   0 Warnings
 	   0 Errors
