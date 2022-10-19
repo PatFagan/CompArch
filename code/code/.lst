@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/18/22 12:41:23
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/19/22 19:39:53
 test.asm						     Page 1 - 1
 
 
@@ -7,7 +7,7 @@ test.asm						     Page 1 - 1
 
  00000000			.data	; start of the data program segment, to declare variables
 
- 00000000 49 20 44 4F 4E	src BYTE "I DON'T KNOW WHAT WE'RE YELLING ABOUT!",0
+ 00000000 49 20 44 4F 4E	src BYTE "I DON'T KNOW WHAT WE'RE YELLING ABOUT!",0	; uppercase version of the string
 	   27 54 20 4B 4E
 	   4F 57 20 57 48
 	   41 54 20 57 45
@@ -15,21 +15,36 @@ test.asm						     Page 1 - 1
 	   45 4C 4C 49 4E
 	   47 20 41 42 4F
 	   55 54 21 00
+ 00000027 = 00000027		lensrc EQU ($ - src)	; length of the src string
+ 00000027 3A 00			dst BYTE ":",0	; lowercase version
 
 
  00000000			.code	; program segment that signals the start of code segment
 				extern ExitProcess : proc	; creates exit function to be used later
  00000000			_main PROC	; start of main function
 
- 00000000  48/ C7 C2		mov rdx, 0	; set rdx to 0 as the index for the first element of the arrays
-	   00000000
 
- 00000007  48/ 33 C9		xor rcx, rcx	; resets value of rcx
- 0000000A			.code	; end of code segment
- 0000000A  E8 00000000 E	call ExitProcess	; calls exit function
- 0000000F			_main ENDP	; end of main function
+ 00000000  48/ 8D 35		lea rsi, src	; load src string into rsi
+	   00000000 R
+ 00000007  48/ 8D 3D		lea rdi, dst	; load dst string into rdi
+	   00000027 R
+
+ 0000000E  80 05 00000000 R	add src, 32	; change ascii byte to lowercase equivalent by adding 32 bytes
+	   20
+
+ 00000015  48/ B9		mov rcx, lensrc	; set counter to string length
+	   0000000000000027
+
+ 0000001F  FC			cld	; clear direction flag to read left to right
+ 00000020  F3/ A5		rep movsd	; move src character to dst string
+
+
+ 00000022  48/ 33 C9		xor rcx, rcx	; resets value of rcx
+ 00000025			.code	; end of code segment
+ 00000025  E8 00000000 E	call ExitProcess	; calls exit function
+ 0000002A			_main ENDP	; end of main function
 				END	; end of program
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/18/22 12:41:23
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/19/22 19:39:53
 test.asm						     Symbols 2 - 1
 
 
@@ -39,7 +54,7 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000000F Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000002A Public
 
 
 Symbols:
@@ -47,6 +62,8 @@ Symbols:
                 N a m e                 Type     Value    Attr
 
 ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
+dst  . . . . . . . . . . . . . .	Byte	 00000027 _DATA	
+lensrc . . . . . . . . . . . . .	Number	 00000027h   
 src  . . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 
 	   0 Warnings
