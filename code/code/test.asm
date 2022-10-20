@@ -16,12 +16,29 @@ _main PROC	; start of main function
 lea rsi, src	; load src string into rsi
 lea rdi, dst	; load dst string into rdi
 
-add src, 32	; change ascii byte to lowercase equivalent by adding 32 bytes
-
 mov rcx, lensrc	; set counter to string length
+mov rdx, 0	; set rdx to 0 for first element of array
+
 
 cld	; clear direction flag to read left to right
 rep movsd	; move src character to dst string
+
+
+lea rdi, dst	; load new dst string into rdi
+
+continueloop:	; tag for the lowercase conversion loop
+
+mov ax, [rdi + rdx]	; move src character to rax
+
+add ax, 32	; convert capital to lowercase character
+
+mov [rdi + rdx], ax	; add new character to rdi
+
+inc rdx	; add to rdx to access next element in the array
+
+cmp rdx, lensrc - 2	; compare rdx to lensrc - 2 for some reason, bc wout the - 2 it prints the string twice
+jle continueloop	; if counter is equal to or less than zero, the loop ends
+
 
 
 xor rcx, rcx	; resets value of rcx

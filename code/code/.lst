@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/19/22 19:39:53
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/20/22 13:11:05
 test.asm						     Page 1 - 1
 
 
@@ -29,22 +29,41 @@ test.asm						     Page 1 - 1
  00000007  48/ 8D 3D		lea rdi, dst	; load dst string into rdi
 	   00000027 R
 
- 0000000E  80 05 00000000 R	add src, 32	; change ascii byte to lowercase equivalent by adding 32 bytes
-	   20
-
- 00000015  48/ B9		mov rcx, lensrc	; set counter to string length
+ 0000000E  48/ B9		mov rcx, lensrc	; set counter to string length
 	   0000000000000027
+ 00000018  48/ C7 C2		mov rdx, 0	; set rdx to 0 for first element of array
+	   00000000
+
 
  0000001F  FC			cld	; clear direction flag to read left to right
  00000020  F3/ A5		rep movsd	; move src character to dst string
 
 
- 00000022  48/ 33 C9		xor rcx, rcx	; resets value of rcx
- 00000025			.code	; end of code segment
- 00000025  E8 00000000 E	call ExitProcess	; calls exit function
- 0000002A			_main ENDP	; end of main function
+ 00000022  48/ 8D 3D		lea rdi, dst	; load new dst string into rdi
+	   00000027 R
+
+ 00000029			continueloop:	; tag for the lowercase conversion loop
+
+ 00000029  66| 8B 04 17		mov ax, [rdi + rdx]	; move src character to rax
+
+ 0000002D  66| 83 C0 20		add ax, 32	; convert capital to lowercase character
+
+ 00000031  66| 89 04 17		mov [rdi + rdx], ax	; add new character to rdi
+
+ 00000035  48/ FF C2		inc rdx	; add to rdx to access next element in the array
+
+ 00000038  48/ 81 FA		cmp rdx, lensrc - 2	; compare rdx to lensrc - 2 for some reason, bc wout the - 2 it prints the string twice
+	   00000025
+ 0000003F  7E E8		jle continueloop	; if counter is equal to or less than zero, the loop ends
+
+
+
+ 00000041  48/ 33 C9		xor rcx, rcx	; resets value of rcx
+ 00000044			.code	; end of code segment
+ 00000044  E8 00000000 E	call ExitProcess	; calls exit function
+ 00000049			_main ENDP	; end of main function
 				END	; end of program
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/19/22 19:39:53
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/20/22 13:11:05
 test.asm						     Symbols 2 - 1
 
 
@@ -54,7 +73,8 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000002A Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 00000049 Public
+  continueloop . . . . . . . . .	L 	 00000029 _TEXT	
 
 
 Symbols:
