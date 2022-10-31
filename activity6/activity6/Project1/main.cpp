@@ -2,26 +2,29 @@
 #include <iostream>
 using namespace std;
 
-extern "C" int asmMain();
+extern "C" int _asmMain();
 
-extern "C" int setFirstValue();
-extern "C" int setSecondValue();
+extern "C" double _getDouble() 
+{
+	double d;
+	cin >> d;
+	return d;
+}
 
+extern "C" void _printString(char* s)
+{
+	cout << s;
+	return;
+}
+
+extern "C" void _printDouble(double d)
+{
+	cout << d << endl;
+}
+
+// main stub driver
 int main() 
 {
-	cout << asmMain();
+	_asmMain();
 	return 0;
-}
-
-extern "C" int getInput()
-{
-	cout << "Input number: ";
-	int inputNumber;
-	cin >> inputNumber;
-	return inputNumber;
-}
-
-extern "C" void displayResult(int result)
-{
-	cout << "The sum is: " << result;
 }
