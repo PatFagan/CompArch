@@ -9,9 +9,9 @@ extrn ExitProcess : proc	; creates exit functionality to be used later
 .data	; start of the data program segment, to declare variables
 ALIGN 16	; align the stack pointer
 
-inputRadius BYTE "Input a radius: ",0	; 
-inputHeight BYTE "Input a height: ",0	; 
-volumeOutput BYTE "Velocity is: ",0	; 
+inputRadius BYTE "Input a radius: ",0	; input radius text
+inputHeight BYTE "Input a height: ",0	; input height text
+volumeOutput BYTE "Velocity is: ",0	; output volume text
 
 volume REAL8 ?	; create variable for volume
 radius REAL8 ?	; create variable for radius
@@ -39,17 +39,17 @@ call _getDouble	; call the c++ function that asks the user for a double
 movsd height, xmm0	; move resulting value to radius from xmm0
 
 
-fld radius
-fmul radius
+fld radius	; load radius onto fpu stack
+fmul radius	; multiply radius by radius
+fstp volume	; store result into volume
 
 fldpi	; load pi onto fpu stack
-fmul radius	; multiply radius by pi
+fmul volume	; multiply current volume by pi
+fstp volume	; store result into volume
 
-;fist radius
-
-; then put st(0) into volume
-
-
+fld height	; load height onto fpu stack
+fmul volume	; multiply current volume by height
+fstp volume	; store result into volume 
 
 lea rsi, volumeOutput	; move volume output string into rsi
 mov rcx, rsi	; load volume output string into parameter register
@@ -62,18 +62,4 @@ xor rcx, rcx	; resets value of rcx
 
 call ExitProcess	; calls exit function
 _asmMain ENDP	; end of asmMain function
-END
-
-
-
-;push rbp	
-;sub rsp, 20h	; subtract stack pointer by 20 hex
-;lea rbp, [rsp + 20h]	; move stack to rbp
-
-
-;fldpi	; load pi on fpu stack
-;fstp volume	; float store single precision (32 bits) from top of FPU stack into volume variable
-
-;fld volume	; load single precision value on FPU stack
-;fadd ST(0), ST(1)
-;movsd xmm0, volume
+END	; end of program
