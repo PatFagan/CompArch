@@ -1,4 +1,4 @@
-; Assignment 8.1 Computing Volume of a Cylinder
+; Assignment 9.4 Encryption
 
 _printString PROTO	; printString c++ function prototype
 _printDouble PROTO	; printDouble c++ function prototype
@@ -23,6 +23,8 @@ height REAL8 ?	; create variable for height
 
 
 _asmMain PROC	; start of the asmMain function
+
+; align stack pointer (ref investment calculator in chapter 8)
 
 finit	; initialize fpu
 
