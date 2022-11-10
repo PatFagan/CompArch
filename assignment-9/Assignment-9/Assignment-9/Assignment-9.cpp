@@ -3,21 +3,38 @@
 #include <fstream>
 using namespace std;
 
-int encrypt(int &currentDigit)
+int encrypt(int &passedDigit)
 {
-	currentDigit *= 2;
-	return currentDigit;
+	int newDigit = passedDigit;
+
+	__asm {
+		mov eax, newDigit
+		sub eax, 2
+		mov ebx, 1
+		xor eax, ebx
+		mov newDigit, eax
+	}
+
+	passedDigit = newDigit;
+
+	return passedDigit;
 }
 
-int decrypt(int &currentDigit)
+int decrypt(int & passedDigit)
 {
-	currentDigit /= 2;
+	int newDigit = passedDigit;
+
 	__asm {
-		mov eax, currentDigit
-		inc eax
-		mov currentDigit, eax
+		mov eax, newDigit
+		mov ebx, 1
+		xor eax, ebx
+		add eax, 2
+		mov newDigit, eax
 	}
-	return currentDigit;
+
+	passedDigit = newDigit;
+
+	return passedDigit;
 }
 
 // main stub driver
@@ -37,23 +54,21 @@ int main()
 	cout << "Initial Code" << endl;
 	for (int i = 0; i < 4; i++)
 	{
-		cout << code[i];
+		cout << code[i] << " ";
 	}
 	cout << endl;
 
 	cout << "Encrypted Code" << endl;
 	for (int i = 0; i < 4; i++)
 	{
-		encrypt(code[i]);
-		cout << code[i];
+		cout << encrypt(code[i]) << " ";
 	}
 	cout << endl;
 
 	cout << "Decrypted Code" << endl;
 	for (int i = 0; i < 4; i++)
 	{
-		decrypt(code[i]);
-		cout << code[i];
+		cout << decrypt(code[i]) << " ";
 	}
 	cout << endl;
 
