@@ -145,6 +145,8 @@
     <MASM Include="test.asm" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="new_file.txt" />
+    <Text Include="read_only.txt" />
     <Text Include="Text.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

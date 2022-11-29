@@ -1,84 +1,126 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/03/22 12:29:53
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   11/28/22 19:16:19
 test.asm						     Page 1 - 1
 
 
-				; Assignment 5.2 alternate
-				; Pin
+				extrn ExitProcess : proc
+				extrn MessageBoxA : proc
+				extrn CreateFileA : proc
+				extern CopyFileA : proc
+				extrn ReadFile : proc
+				extrn CloseHandle : proc
 
- 00000000			.data	; start of the data program segment, to declare variables
+ 00000000			.data
+ 00000000 72 65 61 64 5F	inputFile BYTE "read_only.txt",0
+	   6F 6E 6C 79 2E
+	   74 78 74 00
+ 0000000E 6E 65 77 5F 66	outputFile BYTE "new_file.txt",0
+	   69 6C 65 2E 74
+	   78 74 00
+ 0000001B 4D 65 73 73 61	caption BYTE "Message", 0
+	   67 65 00
+ 00000023 53 75 63 63 65	successMessage BYTE "Successful!",0
+	   73 73 66 75 6C
+	   21 00
+ 0000002F  0000000E [		buffer BYTE 14 DUP (0)
+	    00
+	   ]
 
-				; SUMMARY
-				; array of 4 ints
-				; for each element, check to see if they are within a range (ex. 3-6)
-				; if so set a validate variable to 1
-				; if not, set validate variable to 0 and end program
+ 0000003D			firstFileContents QWORD ?
+	   0000000000000000
+ 00000045			secondFileContents QWORD ?
+	   0000000000000000
+
+ 0000004D			read QWORD ?
+	   0000000000000000
+ 00000055			charsRead QWORD 0
+	   0000000000000000
+ 0000005D			button QWORD ?
+	   0000000000000000
+ 00000065			closed QWORD ?
+	   0000000000000000
+
+ 00000000			.code
+ 00000000			_main PROC
+
+ 00000000  48/ 83 EC 10			sub rsp, 10h				; reserve for return and rbp
+ 00000004  48/ 83 EC 18			sub rsp, 18h				; reserve for parameters
+ 00000008  48/ 83 EC 20			sub rsp, 20h				; reserve shadow space for regs
+
+ 0000000C  48/ 8D 0D			lea rcx, inputFile					; address of file name
+	   00000000 R
+ 00000013  48/ BA			mov rdx, 80000000h					; constant for GENERIC_READ
+	   0000000080000000
+ 0000001D  4D/ 33 C0			xor r8, r8							; 0 share mode
+ 00000020  4D/ 33 C9			xor r9, r9							; 0 security
+ 00000023  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
+	   20 00000003
+ 0000002C  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
+	   28 00000080
+ 00000035  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
+	   30 00000000
+ 0000003E  E8 00000000 E		call CreateFileA
+ 00000043  48/ 89 05			mov firstFileContents, rax			; save handle
+	   0000003D R
+
+ 0000004A  48/ 8D 0D			lea rcx, inputFile
+	   00000000 R
+ 00000051  48/ 8D 15			lea rdx, outputFile					; address of file name
+	   0000000E R
+ 00000058  4D/ 33 C0			xor r8, r8							; 0 share mode
+ 0000005B  4D/ 33 C9			xor r9, r9							; 0 security
+ 0000005E  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
+	   20 00000003
+ 00000067  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
+	   28 00000080
+ 00000070  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
+	   30 00000000
+ 00000079  E8 00000000 E		call CopyFileA
+					;mov secondFileContents, rax		; save handle
+
+ 0000007E  48/ 8D 0D			lea rcx, outputFile					; address of file name
+	   0000000E R
+ 00000085  48/ BA			mov rdx, 80000000h					; constant for GENERIC_READ
+	   0000000080000000
+ 0000008F  4D/ 33 C0			xor r8, r8							; 0 share mode
+ 00000092  4D/ 33 C9			xor r9, r9							; 0 security
+ 00000095  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
+	   20 00000003
+ 0000009E  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
+	   28 00000080
+ 000000A7  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
+	   30 00000000
+ 000000B0  E8 00000000 E		call CreateFileA
+ 000000B5  48/ 89 05			mov secondFileContents, rax			; save handle
+	   00000045 R
 
 
- 00000000 02			validated BYTE 2	; create variable that sets to 0 if invalid and 1 if valid (start at 2 by default)
 
- 00000001 0004 0002 0003	pin WORD 4, 2, 3, 4	; create array of WORDS (2 bytes each element)
-	   0004
+ 000000BC  48/ 8B 0D			mov rcx, secondFileContents			; pass the new file contents
+	   00000045 R
+ 000000C3  48/ 8D 15			lea rdx, buffer						; pass address of buffer
+	   0000002F R
+ 000000CA  49/ C7 C0			mov r8, 13							; pass buffer size
+	   0000000D
+ 000000D1  4C/ 8D 0D			lea r9, charsRead					; pass address of charsRead
+	   00000055 R
+ 000000D8  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 0		; 0 overlap
+	   20 00000000
+ 000000E1  E8 00000000 E		call ReadFile
+ 000000E6  48/ 89 05			mov read, rax						; save characters read
+	   0000004D R
 
- 00000009 0003 0001 0007	lowerboundlist WORD 3, 1, 7, 2
-	   0002
- 00000011 0006 0004 0009	upperboundlist WORD 6, 4, 9, 5
-	   0005
+ 000000ED  48/ 33 C9			xor rcx, rcx						; 0 handle owner
+ 000000F0  48/ 8D 15			lea rdx, buffer						; pass text address
+	   0000002F R
+ 000000F7  4C/ 8D 05			lea r8, successMessage				; pass caption address
+	   00000023 R
+ 000000FE  E8 00000000 E		call MessageBoxA
 
+ 00000103  E8 00000000 E		call ExitProcess			; exit
 
- 00000000			.code	; program segment that signals the start of code segment
-				extern ExitProcess : proc	; creates exit function to be used later
- 00000000			_main PROC	; start of main function
-
- 00000000  48/ 8D 25		lea rsp, lowerboundlist	; load lowerbounds into array
-	   00000009 R
- 00000007  48/ 8D 3D		lea rdi, upperboundlist	; load upperbounds into array
-	   00000011 R
-
- 0000000E  48/ 8D 35		lea rsi, pin	; load array into rsi register
-	   00000001 R
-
- 00000015  48/ C7 C2		mov rdx, 0	; set rdx to 0 as the index for the first element of the array
-	   00000000
-
- 0000001C			restartloop: 
- 0000001C  66| 8B 04 56		mov ax, [rsi + rdx * 2]	; mov current value of array into ax
-
- 00000020  66| 8B 1C 54		mov bx, [rsp + rdx * 2]	; set first lowerbound to bx
- 00000024  66| 3B C3		cmp ax, bx	; compare the current array value to the lowerbound
- 00000027  7D 09		jge checkupperbound	; jump if the current array value is greater than or equal to the lowerbound
- 00000029  C6 05 00000000 R	mov validated, 0	; if comparison is false (element is out of bounds) then validated is set to 0
-	   00
- 00000030  EB 10		jmp continueloop	; and skip to the next loop (since we already know this element is invalid)
-
- 00000032			checkupperbound:	; if it is within bounds then it jumps to here to continue comparisons
- 00000032  66| 8B 1C 57		mov bx, [rdi + rdx * 2]	; set first upperbound to bx
- 00000036  66| 3B C3		cmp ax, bx	; compare the current array value to the upperbound
- 00000039  7E 07		jle continueloop	; jump if the current array value is less than or equal to the upperbound
- 0000003B  C6 05 00000000 R	mov validated, 0	; if comparison is false (element is out of bounds) then validated is set to 0
-	   00
-
-
- 00000042			continueloop:	; jumps to this section of code when preparing to restart the loop
- 00000042  48/ FF C2		inc rdx	; increment rdx to check next element of pin array
-
- 00000045  80 3D 00000000 R	cmp validated, 0	; compare validated with 0
-	   00
- 0000004C  74 08		jz endprogram	; if validated is already 0, endprogram
-
- 0000004E  48/ 83 FA 04		cmp rdx, 4	; check if index is at end of list
- 00000052  7D 02		jge endprogram	; if so, end the program and see validated variable for result
-
- 00000054  EB C6		jmp restartloop	; jump to the start of the loop to begin again
-
- 00000056			endprogram:	; jump here if validated is 0
-
-
- 00000056  48/ 33 C9		xor rcx, rcx	; resets value of rcx
- 00000059			.code	; end of code segment
- 00000059  E8 00000000 E	call ExitProcess	; calls exit function
- 0000005E			_main ENDP	; end of main function
-				END	; end of program
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   10/03/22 12:29:53
+ 00000108			_main ENDP
+				END
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   11/28/22 19:16:19
 test.asm						     Symbols 2 - 1
 
 
@@ -88,22 +130,30 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 0000005E Public
-  restartloop  . . . . . . . . .	L 	 0000001C _TEXT	
-  checkupperbound  . . . . . . .	L 	 00000032 _TEXT	
-  continueloop . . . . . . . . .	L 	 00000042 _TEXT	
-  endprogram . . . . . . . . . .	L 	 00000056 _TEXT	
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 00000108 Public
 
 
 Symbols:
 
                 N a m e                 Type     Value    Attr
 
-ExitProcess  . . . . . . . . . .	L 	 00000000 _TEXT	External
-lowerboundlist . . . . . . . . .	Word	 00000009 _DATA	
-pin  . . . . . . . . . . . . . .	Word	 00000001 _DATA	
-upperboundlist . . . . . . . . .	Word	 00000011 _DATA	
-validated  . . . . . . . . . . .	Byte	 00000000 _DATA	
+CloseHandle  . . . . . . . . . .	L 	 00000000 External
+CopyFileA  . . . . . . . . . . .	L 	 00000000 External
+CreateFileA  . . . . . . . . . .	L 	 00000000 External
+ExitProcess  . . . . . . . . . .	L 	 00000000 External
+MessageBoxA  . . . . . . . . . .	L 	 00000000 External
+ReadFile . . . . . . . . . . . .	L 	 00000000 External
+buffer . . . . . . . . . . . . .	Byte	 0000002F _DATA	
+button . . . . . . . . . . . . .	QWord	 0000005D _DATA	
+caption  . . . . . . . . . . . .	Byte	 0000001B _DATA	
+charsRead  . . . . . . . . . . .	QWord	 00000055 _DATA	
+closed . . . . . . . . . . . . .	QWord	 00000065 _DATA	
+firstFileContents  . . . . . . .	QWord	 0000003D _DATA	
+inputFile  . . . . . . . . . . .	Byte	 00000000 _DATA	
+outputFile . . . . . . . . . . .	Byte	 0000000E _DATA	
+read . . . . . . . . . . . . . .	QWord	 0000004D _DATA	
+secondFileContents . . . . . . .	QWord	 00000045 _DATA	
+successMessage . . . . . . . . .	Byte	 00000023 _DATA	
 
 	   0 Warnings
 	   0 Errors
