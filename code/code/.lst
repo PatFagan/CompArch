@@ -1,6 +1,10 @@
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   11/28/22 19:16:19
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   11/28/22 19:36:19
 test.asm						     Page 1 - 1
 
+
+				; Assignment 11
+				; Pat Fagan
+				; using Program 10.8 as a foundation, Copyright (c) 2017 Hall & Slonka
 
 				extrn ExitProcess : proc
 				extrn MessageBoxA : proc
@@ -16,27 +20,23 @@ test.asm						     Page 1 - 1
  0000000E 6E 65 77 5F 66	outputFile BYTE "new_file.txt",0
 	   69 6C 65 2E 74
 	   78 74 00
- 0000001B 4D 65 73 73 61	caption BYTE "Message", 0
-	   67 65 00
- 00000023 53 75 63 63 65	successMessage BYTE "Successful!",0
+ 0000001B 53 75 63 63 65	successMessage BYTE "Successful!",0
 	   73 73 66 75 6C
 	   21 00
- 0000002F  0000000E [		buffer BYTE 14 DUP (0)
+ 00000027  0000000E [		buffer BYTE 14 DUP (0)
 	    00
 	   ]
 
- 0000003D			firstFileContents QWORD ?
+ 00000035			firstFileContents QWORD ?
 	   0000000000000000
- 00000045			secondFileContents QWORD ?
+ 0000003D			secondFileContents QWORD ?
 	   0000000000000000
 
- 0000004D			read QWORD ?
+ 00000045			charsRead QWORD 0
 	   0000000000000000
- 00000055			charsRead QWORD 0
+ 0000004D			button QWORD ?
 	   0000000000000000
- 0000005D			button QWORD ?
-	   0000000000000000
- 00000065			closed QWORD ?
+ 00000055			closed QWORD ?
 	   0000000000000000
 
  00000000			.code
@@ -45,82 +45,61 @@ test.asm						     Page 1 - 1
  00000000  48/ 83 EC 10			sub rsp, 10h				; reserve for return and rbp
  00000004  48/ 83 EC 18			sub rsp, 18h				; reserve for parameters
  00000008  48/ 83 EC 20			sub rsp, 20h				; reserve shadow space for regs
-
- 0000000C  48/ 8D 0D			lea rcx, inputFile					; address of file name
+					
+ 0000000C  48/ 8D 0D			lea rcx, inputFile
 	   00000000 R
- 00000013  48/ BA			mov rdx, 80000000h					; constant for GENERIC_READ
-	   0000000080000000
- 0000001D  4D/ 33 C0			xor r8, r8							; 0 share mode
- 00000020  4D/ 33 C9			xor r9, r9							; 0 security
- 00000023  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
+ 00000013  48/ 8D 15			lea rdx, outputFile					; address of file name
+	   0000000E R
+ 0000001A  4D/ 33 C0			xor r8, r8							; 0 share mode
+ 0000001D  4D/ 33 C9			xor r9, r9							; 0 security
+ 00000020  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
 	   20 00000003
- 0000002C  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
+ 00000029  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
 	   28 00000080
- 00000035  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
+ 00000032  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
 	   30 00000000
- 0000003E  E8 00000000 E		call CreateFileA
- 00000043  48/ 89 05			mov firstFileContents, rax			; save handle
+ 0000003B  E8 00000000 E		call CopyFileA
+
+ 00000040  48/ 8D 0D			lea rcx, outputFile					; address of file name
+	   0000000E R
+ 00000047  48/ BA			mov rdx, 80000000h					; constant for GENERIC_READ
+	   0000000080000000
+ 00000051  4D/ 33 C0			xor r8, r8							; 0 share mode
+ 00000054  4D/ 33 C9			xor r9, r9							; 0 security
+ 00000057  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
+	   20 00000003
+ 00000060  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
+	   28 00000080
+ 00000069  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
+	   30 00000000
+ 00000072  E8 00000000 E		call CreateFileA
+ 00000077  48/ 89 05			mov secondFileContents, rax			; save handle
 	   0000003D R
 
- 0000004A  48/ 8D 0D			lea rcx, inputFile
-	   00000000 R
- 00000051  48/ 8D 15			lea rdx, outputFile					; address of file name
-	   0000000E R
- 00000058  4D/ 33 C0			xor r8, r8							; 0 share mode
- 0000005B  4D/ 33 C9			xor r9, r9							; 0 security
- 0000005E  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
-	   20 00000003
- 00000067  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
-	   28 00000080
- 00000070  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
-	   30 00000000
- 00000079  E8 00000000 E		call CopyFileA
-					;mov secondFileContents, rax		; save handle
-
- 0000007E  48/ 8D 0D			lea rcx, outputFile					; address of file name
-	   0000000E R
- 00000085  48/ BA			mov rdx, 80000000h					; constant for GENERIC_READ
-	   0000000080000000
- 0000008F  4D/ 33 C0			xor r8, r8							; 0 share mode
- 00000092  4D/ 33 C9			xor r9, r9							; 0 security
- 00000095  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 3		; reverse order, 3 open existing
-	   20 00000003
- 0000009E  48/ C7 44 24			mov QWORD PTR [rsp+48h-20h], 80h	; flags FILE_ATTRIBUTE_NORMAL
-	   28 00000080
- 000000A7  48/ C7 44 24			mov QWORD PTR [rsp+48h-18h], 0		; 0 template
-	   30 00000000
- 000000B0  E8 00000000 E		call CreateFileA
- 000000B5  48/ 89 05			mov secondFileContents, rax			; save handle
-	   00000045 R
-
-
-
- 000000BC  48/ 8B 0D			mov rcx, secondFileContents			; pass the new file contents
-	   00000045 R
- 000000C3  48/ 8D 15			lea rdx, buffer						; pass address of buffer
-	   0000002F R
- 000000CA  49/ C7 C0			mov r8, 13							; pass buffer size
+ 0000007E  48/ 8B 0D			mov rcx, secondFileContents			; pass the new file contents
+	   0000003D R
+ 00000085  48/ 8D 15			lea rdx, buffer						; pass address of buffer
+	   00000027 R
+ 0000008C  49/ C7 C0			mov r8, 13							; pass buffer size
 	   0000000D
- 000000D1  4C/ 8D 0D			lea r9, charsRead					; pass address of charsRead
-	   00000055 R
- 000000D8  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 0		; 0 overlap
+ 00000093  4C/ 8D 0D			lea r9, charsRead					; pass address of charsRead
+	   00000045 R
+ 0000009A  48/ C7 44 24			mov QWORD PTR [rsp+48h-28h], 0		; 0 overlap+
 	   20 00000000
- 000000E1  E8 00000000 E		call ReadFile
- 000000E6  48/ 89 05			mov read, rax						; save characters read
-	   0000004D R
+ 000000A3  E8 00000000 E		call ReadFile
 
- 000000ED  48/ 33 C9			xor rcx, rcx						; 0 handle owner
- 000000F0  48/ 8D 15			lea rdx, buffer						; pass text address
-	   0000002F R
- 000000F7  4C/ 8D 05			lea r8, successMessage				; pass caption address
-	   00000023 R
- 000000FE  E8 00000000 E		call MessageBoxA
+ 000000A8  48/ 33 C9			xor rcx, rcx						; 0 handle owner
+ 000000AB  48/ 8D 15			lea rdx, buffer						; pass text address
+	   00000027 R
+ 000000B2  4C/ 8D 05			lea r8, successMessage				; pass caption address
+	   0000001B R
+ 000000B9  E8 00000000 E		call MessageBoxA
 
- 00000103  E8 00000000 E		call ExitProcess			; exit
+ 000000BE  E8 00000000 E		call ExitProcess			; exit
 
- 00000108			_main ENDP
+ 000000C3			_main ENDP
 				END
-Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   11/28/22 19:16:19
+Microsoft (R) Macro Assembler (x64) Version 14.33.31629.0   11/28/22 19:36:19
 test.asm						     Symbols 2 - 1
 
 
@@ -130,7 +109,7 @@ Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 00000108 Public
+_main  . . . . . . . . . . . . .	P 	 00000000 _TEXT	Length= 000000C3 Public
 
 
 Symbols:
@@ -143,17 +122,15 @@ CreateFileA  . . . . . . . . . .	L 	 00000000 External
 ExitProcess  . . . . . . . . . .	L 	 00000000 External
 MessageBoxA  . . . . . . . . . .	L 	 00000000 External
 ReadFile . . . . . . . . . . . .	L 	 00000000 External
-buffer . . . . . . . . . . . . .	Byte	 0000002F _DATA	
-button . . . . . . . . . . . . .	QWord	 0000005D _DATA	
-caption  . . . . . . . . . . . .	Byte	 0000001B _DATA	
-charsRead  . . . . . . . . . . .	QWord	 00000055 _DATA	
-closed . . . . . . . . . . . . .	QWord	 00000065 _DATA	
-firstFileContents  . . . . . . .	QWord	 0000003D _DATA	
+buffer . . . . . . . . . . . . .	Byte	 00000027 _DATA	
+button . . . . . . . . . . . . .	QWord	 0000004D _DATA	
+charsRead  . . . . . . . . . . .	QWord	 00000045 _DATA	
+closed . . . . . . . . . . . . .	QWord	 00000055 _DATA	
+firstFileContents  . . . . . . .	QWord	 00000035 _DATA	
 inputFile  . . . . . . . . . . .	Byte	 00000000 _DATA	
 outputFile . . . . . . . . . . .	Byte	 0000000E _DATA	
-read . . . . . . . . . . . . . .	QWord	 0000004D _DATA	
-secondFileContents . . . . . . .	QWord	 00000045 _DATA	
-successMessage . . . . . . . . .	Byte	 00000023 _DATA	
+secondFileContents . . . . . . .	QWord	 0000003D _DATA	
+successMessage . . . . . . . . .	Byte	 0000001B _DATA	
 
 	   0 Warnings
 	   0 Errors
