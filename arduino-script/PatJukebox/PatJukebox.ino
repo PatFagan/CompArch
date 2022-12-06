@@ -27,6 +27,9 @@
 #define Clock_MHz 16
 int arpeggiator = 0;
 
+  uint8_t var1 = 2;
+  uint8_t var2 = 0;
+
 // these are the frequencies for the notes from middle C
 // to one octave above middle C:
 const int note[] = {
@@ -49,15 +52,12 @@ void setup() {
   Serial.begin(9600);
 }
 
-  int var1 = 1;
-  int var2 = 0;
-
 void loop() {
   int tempo = Esplora.readSlider();
   
   //melody(tempo);
 
-  drumLoop();
+  //drumLoop();
 
   //getMic(tempo);
 
@@ -72,17 +72,17 @@ void loop() {
     arpeggiator = 0;
   }
 
-delay(1000);
-  asm(
+  asm volatile(
     " addLoop: "
     " mov r16, %[var1] \n\t"
-    " add r16, 2 \n\t"
+    " add r16, %[var1] \n\t"
     " mov %[var2], r16 \n\t" 
     : [var2] "=d" (var2) // output variables
     : [var1] "d" (var1) // input variables
     : "r16" // clobbers
   );
-  
+
+delay(1000);
   Serial.print(var2);
   
   /*
