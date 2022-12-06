@@ -19,6 +19,12 @@
 // use buttons to play notes in key
 // receive mic input (and add reverb to it)
 
+#define LEDPort PORTB           // Arduino pin 13 is bit 5 of port B
+#define LEDBit 5                // Constant for bit 5
+#define DelayTime (uint32_t)((Clock_MHz * MilliSec / 5))  // set to any rate desired
+#define MilliSec 1000000
+
+#define Clock_MHz 16
 int arpeggiator = 0;
 
 // these are the frequencies for the notes from middle C
@@ -40,21 +46,23 @@ const int note[] = {
 };
 
 void setup() {
+  Serial.begin(9600);
 }
 
-void loop() {
+  int var1 = 1;
+  int var2 = 0;
 
+void loop() {
   int tempo = Esplora.readSlider();
   
   //melody(tempo);
 
   drumLoop();
 
-  getMic(tempo);
+  //getMic(tempo);
 
-  //bassLine(arpeggiator);
-
-  int arpInc = 10;
+  // turn this into inline assembly
+  int arpInc = 20;
   if (arpeggiator < (4*arpInc))
   {
     arpeggiator += arpInc;
@@ -63,6 +71,54 @@ void loop() {
   {
     arpeggiator = 0;
   }
+
+delay(1000);
+  asm(
+    " addLoop: "
+    " mov r16, %[var1] \n\t"
+    " add r16, 2 \n\t"
+    " mov %[var2], r16 \n\t" 
+    : [var2] "=d" (var2) // output variables
+    : [var1] "d" (var1) // input variables
+    : "r16" // clobbers
+  );
+  
+  Serial.print(var2);
+  
+  /*
+   asm volatile (
+     " mainLoop: "                         // move DelayTime to registers
+     "    mov r16, %D2  \n\t"              // LSB of DelayTime
+     "    mov r17, %C2  \n\t"              // A2, B2, C2, D2 each is 8 bits
+     "    mov r18, %B2  \n\t"
+     "    mov r19, %A2  \n\t"              // MSB of DelayTime
+     "    mov r20, %D2  \n\t"
+     "    mov r21, %C2  \n\t"
+     "    mov r22, %B2  \n\t"
+     "    mov r23, %A2  \n\t"
+     "    sbi %[port], %[ledbit] \n\t"     // set I/O bit (turn LED on)
+     " onLoop: "
+     "    subi r23, 1  \n\t"		   // subtract constant from register
+     "    sbci r22, 0  \n\t"		   // subtract with carry constant from register
+     "    sbci r21, 0  \n\t"
+     "    sbci r20, 0  \n\t"
+     "    brcc onLoop  \n\t"               // branch if carry cleared
+     "    cbi  %[port], %[ledbit] \n\t"    // clear I/O bit (turn LED off)
+     " offLoop:"
+     "    subi r19, 1  \n\t"
+     "    sbci r18, 0  \n\t"
+     "    sbci r17, 0  \n\t"
+     "    sbci r16, 0  \n\t"
+     "    brcc offLoop \n\t"
+     :                                     // no output variables
+     : [port] "n" (_SFR_IO_ADDR(LEDPort)), // input variables
+       [ledbit] "n" (LEDBit),              // n: integer with known value
+       "d" (DelayTime)                     // d: greater than r15
+     : "r16","r17","r18","r19","r20","r21","r22","r23"  // clobbers
+     );
+     */
+
+  bassLine(arpeggiator);
 
 }
 
