@@ -15,8 +15,8 @@
 // receive mic input (and add reverb to it)
 
 uint8_t arpeggiatorInput = 1;
-uint8_t arpeggiatorOutput = 1;
-uint8_t arpInc = 20;
+uint8_t arpeggiatorOutput = 3;
+uint8_t arpInc = 1;
 uint8_t arpMax = 4*arpInc;
 uint8_t zero = 0;
 
@@ -54,21 +54,23 @@ void loop() {
 
   //getMic(tempo);
 
+  arpeggiatorInput = arpeggiatorOutput;
+
+  //Serial.print(arpeggiatorInput);
   asm volatile(
     " arpLoop: "
-    " mov %[arpeggiatorOutput], %[arpeggiatorInput] \n\t"
-    " add %[arpeggiatorOutput], %[arpInc] \n\t" // increment arpeggiator by arpInc
-    " cp %[arpeggiatorOutput], %[arpMax] \n\t" // compare arpeggiator with max arpeggiator
+    " add %[arpeggiatorInput], %[arpInc] \n\t" // increment arpeggiator by arpInc
+    " cp %[arpMax], %[arpeggiatorInput] \n\t" // compare arpeggiator with max arpeggiator
     " brsh endLoop \n\t" // branch if same or higher
-    //" mov %[arpeggiatorOutput], %[zero] \n\t" // resetting arpeggiator
-    " mov %[arpeggiatorInput], %[arpeggiatorOutput] \n\t "
+    " mov %[arpeggiatorInput], %[zero] \n\t" // resetting arpeggiator
     " endLoop: " // point for branch to jump to if skipping the arp reset
+    " mov %[arpeggiatorOutput], %[arpeggiatorInput] \n\t" // set output to same as input
     : [arpeggiatorOutput] "=d" (arpeggiatorOutput) // output variables
     : [arpInc] "d" (arpInc), [arpMax] "d" (arpMax), [zero] "d" (zero), [arpeggiatorInput] "d" (arpeggiatorInput) // input variables
     : "r16"
   );
 
-  ///*
+  /*
   asm volatile(
     " addLoop: "
     " mov r16, %[var1] \n\t"
@@ -78,10 +80,11 @@ void loop() {
     : [var1] "d" (var1) // input variables
     : "r16" // clobbers
   );
-  //*/
+  */
 
-  //delay(1000);
-  Serial.print(var2);
+  delay(500);
+  Serial.print(arpeggiatorOutput);
+  delay(500);
 
   bassLine(arpeggiatorOutput);
 
