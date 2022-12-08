@@ -1,15 +1,10 @@
 /*
-  Esplora Music
+  Music Box
+  using Arduino Esplora
 
-  This sketch turns the Esplora in a simple musical instrument.
-  Press the Switch 1 and move the slider to see how it works.
-
-  Created on 22 november 2012
-  By Enrico Gueli <enrico.gueli@gmail.com>
-  modified 22 Dec 2012
-  by Tom Igoe
+  Original musical slider example provided by
+  Enrico Gueli & Tom Igoe
 */
-
 
 #include <Esplora.h>
 
@@ -19,16 +14,14 @@
 // use buttons to play notes in key
 // receive mic input (and add reverb to it)
 
-#define LEDPort PORTB           // Arduino pin 13 is bit 5 of port B
-#define LEDBit 5                // Constant for bit 5
-#define DelayTime (uint32_t)((Clock_MHz * MilliSec / 5))  // set to any rate desired
-#define MilliSec 1000000
+uint8_t arpeggiatorInput = 1;
+uint8_t arpeggiatorOutput = 1;
+uint8_t arpInc = 20;
+uint8_t arpMax = 4*arpInc;
+uint8_t zero = 0;
 
-#define Clock_MHz 16
-int arpeggiator = 0;
-
-  uint8_t var1 = 2;
-  uint8_t var2 = 0;
+uint8_t var1 = 2;
+uint8_t var2 = 0;
 
 // these are the frequencies for the notes from middle C
 // to one octave above middle C:
@@ -49,7 +42,7 @@ const int note[] = {
 };
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // set up debug console
 }
 
 void loop() {
@@ -61,17 +54,21 @@ void loop() {
 
   //getMic(tempo);
 
-  // turn this into inline assembly
-  int arpInc = 20;
-  if (arpeggiator < (4*arpInc))
-  {
-    arpeggiator += arpInc;
-  }
-  if (arpeggiator >= (4*arpInc))
-  {
-    arpeggiator = 0;
-  }
+  asm volatile(
+    " arpLoop: "
+    " mov %[arpeggiatorOutput], %[arpeggiatorInput] \n\t"
+    " add %[arpeggiatorOutput], %[arpInc] \n\t" // increment arpeggiator by arpInc
+    " cp %[arpeggiatorOutput], %[arpMax] \n\t" // compare arpeggiator with max arpeggiator
+    " brsh endLoop \n\t" // branch if same or higher
+    //" mov %[arpeggiatorOutput], %[zero] \n\t" // resetting arpeggiator
+    " mov %[arpeggiatorInput], %[arpeggiatorOutput] \n\t "
+    " endLoop: " // point for branch to jump to if skipping the arp reset
+    : [arpeggiatorOutput] "=d" (arpeggiatorOutput) // output variables
+    : [arpInc] "d" (arpInc), [arpMax] "d" (arpMax), [zero] "d" (zero), [arpeggiatorInput] "d" (arpeggiatorInput) // input variables
+    : "r16"
+  );
 
+  ///*
   asm volatile(
     " addLoop: "
     " mov r16, %[var1] \n\t"
@@ -81,44 +78,12 @@ void loop() {
     : [var1] "d" (var1) // input variables
     : "r16" // clobbers
   );
+  //*/
 
-delay(1000);
+  //delay(1000);
   Serial.print(var2);
-  
-  /*
-   asm volatile (
-     " mainLoop: "                         // move DelayTime to registers
-     "    mov r16, %D2  \n\t"              // LSB of DelayTime
-     "    mov r17, %C2  \n\t"              // A2, B2, C2, D2 each is 8 bits
-     "    mov r18, %B2  \n\t"
-     "    mov r19, %A2  \n\t"              // MSB of DelayTime
-     "    mov r20, %D2  \n\t"
-     "    mov r21, %C2  \n\t"
-     "    mov r22, %B2  \n\t"
-     "    mov r23, %A2  \n\t"
-     "    sbi %[port], %[ledbit] \n\t"     // set I/O bit (turn LED on)
-     " onLoop: "
-     "    subi r23, 1  \n\t"		   // subtract constant from register
-     "    sbci r22, 0  \n\t"		   // subtract with carry constant from register
-     "    sbci r21, 0  \n\t"
-     "    sbci r20, 0  \n\t"
-     "    brcc onLoop  \n\t"               // branch if carry cleared
-     "    cbi  %[port], %[ledbit] \n\t"    // clear I/O bit (turn LED off)
-     " offLoop:"
-     "    subi r19, 1  \n\t"
-     "    sbci r18, 0  \n\t"
-     "    sbci r17, 0  \n\t"
-     "    sbci r16, 0  \n\t"
-     "    brcc offLoop \n\t"
-     :                                     // no output variables
-     : [port] "n" (_SFR_IO_ADDR(LEDPort)), // input variables
-       [ledbit] "n" (LEDBit),              // n: integer with known value
-       "d" (DelayTime)                     // d: greater than r15
-     : "r16","r17","r18","r19","r20","r21","r22","r23"  // clobbers
-     );
-     */
 
-  bassLine(arpeggiator);
+  bassLine(arpeggiatorOutput);
 
 }
 
